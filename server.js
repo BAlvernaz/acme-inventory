@@ -58,11 +58,12 @@ app.get('/', async (req, res, next) => {
 app.put('/api/products/:id', async (req, res, next) => {
   try {
   await Products.update(
-    {status:req.body.status},
+    {status: req.body.status},
     {where: {
       id: req.params.id
     }
     })
+    console.log(typeof req.body)
     res.sendStatus(204)
   } catch(ex) {
     next(ex)
