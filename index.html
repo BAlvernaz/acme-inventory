@@ -1,0 +1,111 @@
+<html>
+  <head>
+    <style>
+      #navcontain {
+        display: flex;
+        justify-content: space-around;
+      }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <script
+      src="https://unpkg.com/react@16/umd/react.development.js"
+      crossorigin
+    ></script>
+    <script
+      src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"
+      crossorigin
+    ></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-router-dom/5.0.0/react-router-dom.js"></script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="text/babel">
+      const { HashRouter, Route, NavLink } = ReactRouterDOM
+
+      class App extends React.Component {
+        constructor(){
+          super()
+          this.state = {
+            products: []
+          }
+        }
+        async componentDidMount () {
+          const response = await axios.get('/api/products')
+          this.setState({products: response.data})
+        }
+          render() {
+            const { products } = this.state
+            return (
+              <div>
+              <h1>Acme Inventory</h1>
+                <HashRouter>
+                  <NavBar />
+                  <Route exact path="/" render={() => <Products  products={products} />} />
+                  <Route path="/:status" render={props => <Products products={products}  {...props}/>}/>
+                </HashRouter>
+              </div>
+            )
+          }
+        }
+
+        class Products extends React.Component {
+          render() {
+            const { products } = this.props
+            if (!this.props.match) {
+            return (
+              <div>
+                {
+                  products.map(product => (
+                  <div key={product.id}>
+                    <h1>{product.name}</h1>
+                    <p>Updated At: {Date(product.updatedAt)}</p>
+                    <select defaultValue={product.status}>
+                      <option>INSTOCK</option>
+                      <option>BACKORDERED</option>
+                      <option>DISCONTINUED</option>
+                    </select>
+                  </div>
+                    ))
+                }
+              </div>
+            )
+          } else {
+            return (
+              <div>
+                {
+                  products.filter(product => product.status === this.props.match.params.status)
+                  .map(product => (
+                  <div key={product.id}>
+                    <h1>{product.name}</h1>
+                    <p>Updated At: {Date(product.updatedAt)}</p>
+                    <select defaultValue={product.status}>
+                      <option>INSTOCK</option>
+                      <option>BACKORDERED</option>
+                      <option>DISCONTINUED</option>
+                    </select>
+                  </div>
+                    ))
+                }
+              </div>
+            )
+
+          }
+        }
+      }
+        const NavBar = () => {
+        return (
+          <div id="navcontain">
+          <NavLink to="/" > ALL PRODUCTS </NavLink>
+          <NavLink  to="/INSTOCK"> INSTOCK </NavLink>
+          <NavLink to="/BACKORDERED"> BACKORDERED </NavLink>
+          <NavLink to="/DISCONTINUED"> DISCONTINUED </NavLink>
+          </div>
+        )
+      }
+
+        const root = document.querySelector('#root');
+        ReactDOM.render(<App />, root);
+    </script>
+  </body>
+</html>
