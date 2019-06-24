@@ -5,6 +5,19 @@
         display: flex;
         justify-content: space-around;
       }
+      .active {
+        background-color: black;
+        color: white;
+        text-decoration: none;
+      }
+
+      a {
+        border: 2px solid black;
+        padding: 3px;
+        text-decoration: none;
+        color:black;
+      }
+
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.js"></script>
     <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
@@ -37,17 +50,16 @@
           this.setState({ products: response.data });
         }
         async onChange(product, status) {
-          await axios.put(`/api/products/${product.id}`, {status: status})
+          await axios.put(`/api/products/${product.id}`, { status: status });
           const products = this.state.products.map(_product => {
-            if(_product.id !== product.id) {
-              return _product
+            if (_product.id !== product.id) {
+              return _product;
             } else {
-            return {...product, status}
+              return { ...product, status };
             }
-          }
-          )
-          this.setState({products})
-          window.location.hash = `/${status}`
+          });
+          this.setState({ products });
+          window.location.hash = `/${status}`;
         }
         render() {
           const { products } = this.state;
@@ -55,9 +67,9 @@
 
           return (
             <HashRouter>
-            <div>
-              <h1>Acme Inventory</h1>
-                <NavBar />
+              <div>
+                <h1>Acme Inventory</h1>
+                <NavBar products={products} />
                 <Route
                   exact
                   path="/"
@@ -75,8 +87,8 @@
                     />
                   )}
                 />
-            </div>
-          </HashRouter>
+              </div>
+            </HashRouter>
           );
         }
       }
@@ -94,7 +106,6 @@
                     defaultValue={product.status}
                     onChange={ev => onChange(product, ev.target.value)}
                   >
-                    console.log(value)
                     <option>INSTOCK</option>
                     <option>BACKORDERED</option>
                     <option>DISCONTINUED</option>
@@ -107,17 +118,15 @@
           return (
             <div>
               {products
-                .filter(
-                  product => product.status === props.match.params.status
-                )
+                .filter(product => product.status === props.match.params.status)
                 .map(product => (
                   <div key={product.id}>
                     <h1>{product.name}</h1>
                     <p>Updated At: {Date(product.updatedAt)}</p>
                     <select
-                    defaultValue={product.status}
-                    onChange={ev => onChange(product, ev.target.value)}
-                  >
+                      defaultValue={product.status}
+                      onChange={ev => onChange(product, ev.target.value)}
+                    >
                       <option>INSTOCK</option>
                       <option>BACKORDERED</option>
                       <option>DISCONTINUED</option>
@@ -128,13 +137,42 @@
           );
         }
       };
-      const NavBar = () => {
+      const NavBar = props => {
         return (
           <div id="navcontain">
-            <NavLink to="/"> ALL PRODUCTS </NavLink>
-            <NavLink to="/INSTOCK"> INSTOCK </NavLink>
-            <NavLink to="/BACKORDERED"> BACKORDERED </NavLink>
-            <NavLink to="/DISCONTINUED"> DISCONTINUED </NavLink>
+            <NavLink to="/" exact activeClassName="active">
+              {" "}
+              ALL PRODUCTS ({props.products.length})
+            </NavLink>
+            <NavLink to="/INSTOCK" activeClassName="active">
+              {" "}
+              INSTOCK (
+              {
+                props.products.filter(product => product.status === "INSTOCK")
+                  .length
+              }
+              )
+            </NavLink>
+            <NavLink to="/BACKORDERED" activeClassName="active">
+              {" "}
+              BACKORDERED (
+              {
+                props.products.filter(
+                  product => product.status === "BACKORDERED"
+                ).length
+              }
+              ){" "}
+            </NavLink>
+            <NavLink to="/DISCONTINUED" activeClassName="active">
+              {" "}
+              DISCONTINUED (
+              {
+                props.products.filter(
+                  product => product.status === "DISCONTINUED"
+                ).length
+              }
+              )
+            </NavLink>
           </div>
         );
       };

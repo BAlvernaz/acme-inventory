@@ -63,7 +63,6 @@ app.put('/api/products/:id', async (req, res, next) => {
       id: req.params.id
     }
     })
-    console.log(typeof req.body)
     res.sendStatus(204)
   } catch(ex) {
     next(ex)
